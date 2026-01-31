@@ -3,6 +3,7 @@ import '../core/constants/colors.dart';
 import '../core/theme/typography.dart';
 import '../models/training_profile.dart';
 import '../services/user_storage_service.dart';
+import '../services/program_generator_service.dart';
 import '../navigation/app_router.dart';
 
 /// Multi-step training plan setup questionnaire
@@ -174,17 +175,33 @@ class _TrainingPlanSetupScreenState extends State<TrainingPlanSetupScreen> {
     });
 
     try {
-      final saved = await UserStorageService.saveTrainingProfile(_profile);
-      if (saved && mounted) {
-        // Navigate to home or next screen
-        Navigator.of(context).pushReplacementNamed(AppRouter.home);
-      } else if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Failed to save. Please try again.'),
-            backgroundColor: AppColors.error,
-          ),
-        );
+      // Save training profile
+      final profileSaved = await UserStorageService.saveTrainingProfile(_profile);
+      if (!profileSaved) {
+        throw Exception('Failed to save training profile');
+      }
+
+      // Get user info
+      final userInfo = await UserStorageService.getUserInfo();
+      if (userInfo == null) {
+        throw Exception('User information not found');
+      }
+
+      // Generate program using deterministic logic
+      final programConfig = ProgramGeneratorService.generateProgram(
+        userInfo: userInfo,
+        profile: _profile,
+      );
+
+      // Save program configuration
+      final programSaved = await UserStorageService.saveProgramConfig(programConfig);
+      if (!programSaved) {
+        throw Exception('Failed to save program configuration');
+      }
+
+      if (mounted) {
+        // Navigate to main screen
+        Navigator.of(context).pushReplacementNamed(AppRouter.main);
       }
     } catch (e) {
       if (mounted) {

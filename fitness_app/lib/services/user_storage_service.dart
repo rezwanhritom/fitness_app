@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/user_info.dart';
 import '../models/training_profile.dart';
+import '../models/program_config.dart';
 
 /// Service for storing and retrieving user information locally
 class UserStorageService {
@@ -85,6 +86,49 @@ class UserStorageService {
     try {
       final prefs = await SharedPreferences.getInstance();
       return await prefs.remove(_trainingProfileKey);
+    } catch (e) {
+      return false;
+    }
+  }
+
+  // Program Config Storage
+  static const String _programConfigKey = 'program_config';
+
+  /// Save program configuration to local storage
+  static Future<bool> saveProgramConfig(ProgramConfig config) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final jsonString = jsonEncode(config.toJson());
+      return await prefs.setString(_programConfigKey, jsonString);
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Retrieve program configuration from local storage
+  static Future<ProgramConfig?> getProgramConfig() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final jsonString = prefs.getString(_programConfigKey);
+      if (jsonString == null) return null;
+      final json = jsonDecode(jsonString) as Map<String, dynamic>;
+      return ProgramConfig.fromJson(json);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  /// Check if program configuration exists
+  static Future<bool> hasProgramConfig() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.containsKey(_programConfigKey);
+  }
+
+  /// Clear program configuration
+  static Future<bool> clearProgramConfig() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      return await prefs.remove(_programConfigKey);
     } catch (e) {
       return false;
     }

@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import '../core/constants/colors.dart';
 import '../core/theme/typography.dart';
 import '../navigation/app_router.dart';
+import '../services/user_storage_service.dart';
+import '../services/program_generator_service.dart';
+import '../models/training_profile.dart';
 
 /// Choice screen after user info setup
 class ChoiceScreen extends StatelessWidget {
@@ -44,9 +47,9 @@ class ChoiceScreen extends StatelessWidget {
                 context: context,
                 title: 'Go straight to exercises',
                 icon: Icons.fitness_center,
-                onTap: () {
-                  // Navigate to exercises (placeholder for now)
-                  Navigator.of(context).pushNamed(AppRouter.exercises);
+                onTap: () async {
+                  // Generate basic program and navigate to main
+                  await _generateBasicProgramAndNavigate(context);
                 },
               ),
             ],
@@ -108,5 +111,41 @@ class ChoiceScreen extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Future<void> _generateBasicProgramAndNavigate(BuildContext context) async {
+    try {
+      // Get user info
+      final userInfo = await UserStorageService.getUserInfo();
+      if (userInfo == null) {
+        // Should not happen, but handle gracefully
+        Navigator.of(context).pushNamed(AppRouter.exercises);
+        return;
+      }
+
+      // Create minimal training profile with default values
+      final basicProfile = TrainingProfile(
+        trainingLevel: 'Never trained before', // Conservative default
+      );
+
+      // Generate program with conservative defaults
+      final programConfig = ProgramGeneratorService.generateProgram(
+        userInfo: userInfo,
+        profile: basicProfile,
+      );
+
+      // Save program configuration
+      await UserStorageService.saveProgramConfig(programConfig);
+
+      // Navigate to main screen
+      if (context.mounted) {
+        Navigator.of(context).pushReplacementNamed(AppRouter.main);
+      }
+    } catch (e) {
+      // On error, just navigate to exercises screen
+      if (context.mounted) {
+        Navigator.of(context).pushNamed(AppRouter.exercises);
+      }
+    }
   }
 }

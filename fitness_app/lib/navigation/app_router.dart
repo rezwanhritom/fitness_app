@@ -1,5 +1,6 @@
 import '../screens/splash_screen.dart';
 import '../screens/home_screen.dart';
+import '../screens/main_screen.dart';
 import '../screens/motivation_screen.dart';
 import '../screens/user_info_setup_screen.dart';
 import '../screens/choice_screen.dart';
@@ -17,6 +18,7 @@ class AppRouter {
   static const String trainingPlanSetup = '/training-plan-setup';
   static const String exercises = '/exercises';
   static const String home = '/home';
+  static const String main = '/main';
   
   // Private constructor to prevent instantiation
   AppRouter._();
@@ -31,6 +33,7 @@ class AppRouter {
       trainingPlanSetup: (context) => const TrainingPlanSetupScreen(),
       exercises: (context) => const ExercisesScreen(),
       home: (context) => const HomeScreen(),
+      main: (context) => const MainScreen(),
     };
   }
 }
