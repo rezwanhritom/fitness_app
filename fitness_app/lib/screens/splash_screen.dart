@@ -68,16 +68,13 @@ class _SplashScreenState extends State<SplashScreen>
           builder: (context, child) {
             return FadeTransition(
               opacity: _fadeAnimation,
-              child: ScaleTransition(
-                scale: _scaleAnimation,
-                child: child,
-              ),
+              child: child,
             );
           },
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // Logo placeholder - using a container with app name for now
+              // Centered demo logo
               Container(
                 width: 120,
                 height: 120,
@@ -100,14 +97,6 @@ class _SplashScreenState extends State<SplashScreen>
                       fontSize: 48,
                     ),
                   ),
-                ),
-              ),
-              const SizedBox(height: 24),
-              // App name
-              Text(
-                'Fitness App',
-                style: AppTypography.heading2.copyWith(
-                  color: AppColors.primary,
                 ),
               ),
             ],
